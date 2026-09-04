@@ -96,6 +96,9 @@ async function openProfile(fileId) {
 
     el.innerHTML = `
       <div class="resume-frame">
+        <a href="${data.resumeEmbedLink}" download="Resume.pdf" class="download-btn">
+            📥 Download Resume
+        </a>
         <iframe src="${data.resumeEmbedLink}"></iframe>
       </div>
       <div class="profile-side">
@@ -112,6 +115,7 @@ async function openProfile(fileId) {
         <div class="field"><b>Current CTC</b>${f.current_ctc || '-'}</div>
         <div class="field"><b>Expected CTC</b>${f.exp_ctc || '-'}</div>
         <div class="referred-badge">Referred by: ${f.referred_by || 'Not specified'}</div>
+        <div class="referred-badge"><b>Reference Phone No: </b>${f.reference_Phoneno || 'Not specified'}</div>
       </div>
     `;
   } catch (err) {

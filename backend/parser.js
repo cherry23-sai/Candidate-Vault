@@ -16,7 +16,8 @@ const FIELD_ALIASES = {
   notice_period: ['noticeperiod', 'notice'],
   current_ctc: ['currentctc'],
   exp_ctc: ['expctc', 'expectedctc'],
-  referred_by: ['refferedby', 'referredby', 'referedby', 'reffered', 'referred']
+  referred_by: ['refferedby', 'referredby', 'referedby', 'reffered', 'referred'],
+  reference_Phoneno: ['referencephonenumber', 'referencephone', 'referencephoneno', 'referencecontactno']
 };
 
 // Strip everything except letters so "Mobile no", "Mobile-No", "mobile_no"
@@ -57,7 +58,7 @@ function parseCandidateText(rawText) {
     name: '', skills: '', mobile: '', email: '',
     current_location: '', preferred_location: '', current_company: '',
     total_exp: '', rel_exp: '', notice_period: '',
-    current_ctc: '', exp_ctc: '', referred_by: ''
+    current_ctc: '', exp_ctc: '', referred_by: '', reference_Phoneno: ''
   };
 
   const lines = String(rawText).split(/\r?\n/);
