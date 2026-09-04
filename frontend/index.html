@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidate Vault</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>📋 Candidate Vault</h1>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="upload">⬆ Upload</button>
+      <button class="tab-btn" data-tab="watch">🔍 Watch</button>
+      <button class="tab-btn" data-tab="view">👁 View</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- UPLOAD -->
+    <section id="upload" class="panel active">
+      <h2>Add a candidate</h2>
+      <p class="hint">Paste the candidate details exactly as received, then attach their resume PDF. Name, skills, and every other field are detected automatically — no manual form.</p>
+
+      <textarea id="candidateText" rows="14" placeholder="Name    : Charan Sai
+Skills  : Java, Python
+Mobile no  : 1234567890
+Email  I'd : charansai@gmail.com
+Current location : Hyderabad
+Preferred location  : Hyderabad
+Current company  : XYZ Company
+Total exp : 1 year
+Rel exp : 2years
+Notice period : immediate
+Current ctc : 3 lakh
+Exp ctc : 6 lakh
+Reffered by : sai"></textarea>
+
+      <div class="upload-row">
+        <input type="file" id="resumeFile" accept="application/pdf">
+        <button id="uploadBtn" class="primary-btn">Upload</button>
+      </div>
+      <div id="uploadStatus" class="status"></div>
+    </section>
+
+    <!-- WATCH -->
+    <section id="watch" class="panel">
+      <h2>Search candidates</h2>
+      <p class="hint">Search by skill (e.g. "Java") — or any field: location, company, notice period, etc.</p>
+      <div class="search-row">
+        <input type="text" id="searchInput" placeholder="e.g. Java">
+        <button id="searchBtn" class="primary-btn">Search</button>
+      </div>
+      <div id="searchResults" class="results-grid"></div>
+    </section>
+
+    <!-- VIEW -->
+    <section id="view" class="panel">
+      <h2>Profile</h2>
+      <div id="viewContent" class="view-content">
+        <p class="hint">Search for a candidate in Watch, then click "View profile" on their card.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
