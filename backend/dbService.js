@@ -10,12 +10,6 @@ const mysql = require('mysql2/promise');
 const RESUME_STORE_DIR = process.env.RESUME_STORE_DIR || path.join(__dirname, 'resumes');
 fs.mkdirSync(RESUME_STORE_DIR, { recursive: true });
 
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_PASSWORD exists:", !!process.env.DB_PASSWORD);
-console.log("DB_NAME:", process.env.DB_NAME);
-console.log("DB_PORT:", process.env.DB_PORT);
-
 // ---- Connection pool ----
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
