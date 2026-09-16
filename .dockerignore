@@ -1,0 +1,13 @@
+backend/node_modules
+node_modules
+
+"backend/.env"
+".env"
+
+backend/resumes
+backend/uploads_tmp
+
+.git
+.gitignore
+
+npm-debug.log
