@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101828">
+  <link rel="icon" href="logo.png" type="image/x-icon">
+  <title>One Hire</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Login -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-brand-panel">
+      <div class="brand-lockup">
+        <img src="logo.png" alt="H" class="brand-mark">
+        <span>One Hire</span>
+      </div>
+      <div class="brand-copy">
+        <span class="eyebrow">RECRUITMENT OPERATIONS</span>
+        <h1>Find the right talent.<br><span>Move hiring forward.</span></h1>
+        <p>A focused workspace for managing candidate profiles, resumes and job applications in one secure place.</p>
+        <div class="login-highlights">
+          <div><span class="highlight-icon">✓</span><span>Centralized candidate profiles</span></div>
+          <div><span class="highlight-icon">✓</span><span>Role-aware access</span></div>
+          <div><span class="highlight-icon">✓</span><span>Application tracking by job</span></div>
+        </div>
+      </div>
+      <div class="brand-footer">Hire Path · Talent workspace</div>
+    </div>
+
+    <div class="login-form-panel">
+      <div class="login-card">
+        <div class="mobile-brand">Hire Path</div>
+        <div class="login-heading">
+          <span class="eyebrow">WELCOME BACK</span>
+          <h2>Sign in to your workspace</h2>
+          <p>Use your assigned account to continue.</p>
+        </div>
+
+        <form id="loginForm">
+          <label class="field-label" for="role">Role</label>
+          <div class="role-switch">
+            <button type="button" class="role-option active" data-role="employee">
+              <span class="role-icon">◉</span>
+              <span><strong>Employee</strong><small>View profiles</small></span>
+            </button>
+            <button type="button" class="role-option" data-role="admin">
+              <span class="role-icon">◆</span>
+              <span><strong>Admin</strong><small>Manage hiring</small></span>
+            </button>
+          </div>
+          <input type="hidden" id="loginRole" value="employee">
+
+          <label class="field-label" for="username">Username</label>
+          <div class="input-wrap">
+            <span class="input-icon">◎</span>
+            <input id="username" type="text" autocomplete="username" placeholder="Enter your username" required>
+          </div>
+
+          <label class="field-label" for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">▣</span>
+            <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            <button type="button" id="togglePassword" class="password-toggle">Show</button>
+          </div>
+
+          <div id="loginStatus" class="form-status"></div>
+          <button class="login-btn" type="submit">
+            <span>Sign in</span><span>→</span>
+          </button>
+        </form>
+        <p class="secure-note"><span>●</span> Authorized users only</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application -->
+  <div id="appShell" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="logo.png" alt="H" class="brand-mark">
+        <div><strong>One Hire</strong><small>Talent workspace</small></div>
+      </div>
+
+      <nav class="side-nav">
+        <div class="nav-label">WORKSPACE</div>
+        <button class="nav-item admin-only active" data-tab="upload">
+          <span class="nav-icon">＋</span><span>Upload Candidate</span>
+        </button>
+        <button class="nav-item" data-tab="watch">
+          <span class="nav-icon">⌕</span><span>Candidate Search</span>
+        </button>
+        <button class="nav-item" data-tab="companies">
+          <span class="nav-icon">▦</span><span>Companies</span>
+        </button>
+        <button class="nav-item" data-tab="roles">
+          <span class="nav-icon">◈</span><span>Roles</span>
+        </button>
+        <button class="nav-item" data-tab="view">
+          <span class="nav-icon">▤</span><span>Profile View</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="access-card">
+          <span class="access-dot"></span>
+          <div><small>Signed in as</small><strong id="sidebarUser">Employee</strong></div>
+        </div>
+        <button id="logoutBtn" class="logout-btn"><span>↪</span> Sign out</button>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="app-header">
+        <div>
+          <div class="breadcrumb">HIRE PATH <span>/</span> <span id="pageSection">UPLOAD CANDIDATE</span></div>
+          <h1 id="pageTitle">Add a candidate</h1>
+        </div>
+        <div class="header-actions">
+          <div class="role-pill"><span class="access-dot"></span><span id="headerRole">Employee</span></div>
+          <div class="user-avatar" id="userAvatar">E</div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- Upload -->
+        <section id="upload" class="panel active">
+          <div class="section-intro">
+            <div>
+              <span class="eyebrow">CANDIDATE INTAKE</span>
+              <h2>Build a complete candidate record</h2>
+              <p>Capture the candidate information, resume and role details together so every application stays connected to the right opportunity.</p>
+            </div>
+          </div>
+
+          <div class="stats-strip">
+            <div class="mini-stat"><span class="stat-icon">◫</span><div><strong id="candidateCount">—</strong><small>Total candidates</small></div></div>
+            <button class="mini-stat clickable-stat" data-tab-target="roles"><span class="stat-icon">◇</span><div><strong id="jobCount">—</strong><small>Open roles tracked</small></div><span class="stat-arrow">→</span></button>
+            <button class="mini-stat clickable-stat" data-tab-target="companies"><span class="stat-icon">◌</span><div><strong id="companyCount">—</strong><small>Companies</small></div><span class="stat-arrow">→</span></button>
+          </div>
+
+          <form id="candidateForm" class="intake-layout">
+            <div class="intake-main">
+              <article class="form-card">
+                <div class="card-heading">
+                  <div class="step-number">01</div>
+                  <div><h3>User Details</h3><p>Paste the candidate details exactly as received.</p></div>
+                </div>
+                <textarea id="candidateText" rows="15" placeholder="User information"></textarea>
+                <div class="helper-row"><span>Automatic field detection is enabled.</span><span id="candidateChars">0 characters</span></div>
+              </article>
+
+              <article class="form-card">
+                <div class="card-heading">
+                  <div class="step-number">02</div>
+                  <div><h3>Upload Resume</h3><p>Attach the candidate's PDF resume.</p></div>
+                </div>
+                <label class="dropzone" for="resumeFile" id="dropzone">
+                  <div class="upload-cloud">↑</div>
+                  <div><strong id="fileLabel">Choose a PDF resume</strong><span>Drag & drop or click to browse</span><small>PDF files only</small></div>
+                  <input type="file" id="resumeFile" accept="application/pdf">
+                </label>
+              </article>
+            </div>
+
+            <aside class="intake-side">
+              <article class="form-card job-card">
+                <div class="card-heading">
+                  <div class="step-number">03</div>
+                  <div><h3>Job Description</h3><p>Connect this candidate to an opportunity.</p></div>
+                </div>
+
+                <label class="field-label" for="companyName">Company Name <span>*</span></label>
+                <input id="companyName" class="text-input" type="text" placeholder="e.g. Acme Technologies" required>
+
+                <label class="field-label" for="jobRole">Role *</label>
+                <input type="text" class="text-input" id="jobRole" placeholder="e.g. Software Engineer">
+                
+                <label class="field-label" for="hrDetails">HR Details <span>*</span></label>
+                <input id="hrDetails" class="text-input" type="text" placeholder="Name, email or contact details" required>
+
+                <label class="field-label" for="jobDescription">Job Description <span>*</span></label>
+                <textarea id="jobDescription" class="job-textarea" rows="9" placeholder="Describe the role, required skills, experience and responsibilities..." required></textarea>
+
+                <div class="job-note"><span>i</span><div>Applications using the same company and job details are grouped together automatically.</div></div>
+              </article>
+
+              <button id="uploadBtn" class="submit-btn" type="submit"><span>Save candidate</span><span>→</span></button>
+              <div id="uploadStatus" class="form-status"></div>
+            </aside>
+          </form>
+        </section>
+
+        <!-- Companies -->
+        <section id="companies" class="panel">
+          <div class="section-intro">
+            <div><span class="eyebrow">COMPANY DIRECTORY</span><h2>Companies hiring through Hire Path</h2><p>Explore companies and see how many candidates are associated with each organization.</p></div>
+          </div>
+          <div class="directory-meta"><span id="companyResultCount">Loading companies…</span><span>Click a company to view its candidates</span></div>
+          <div id="companyGrid" class="company-grid"></div>
+        </section>
+
+        <!-- Roles -->
+        <section id="roles" class="panel">
+          <div class="section-intro">
+            <div><span class="eyebrow">ROLE DIRECTORY</span><h2>Open roles & applications</h2><p>Browse every tracked opportunity and see the number of candidates who applied.</p></div>
+          </div>
+          <div class="directory-meta"><span id="roleResultCount">Loading roles…</span><span>Click a role to view matching candidates</span></div>
+          <div id="roleGrid" class="role-grid"></div>
+        </section>
+
+        <!-- Watch -->
+        <section id="watch" class="panel">
+          <div class="section-intro">
+            <div><span class="eyebrow">CANDIDATE DIRECTORY</span><h2>Search and explore talent</h2><p>Find candidates across skills, experience, location, company or application details.</p></div>
+          </div>
+
+          <div class="search-toolbar">
+            <div class="search-box"><span>⌕</span><input type="text" id="searchInput" placeholder="Search candidates, skills, companies, locations..."><button id="clearSearch" type="button">×</button></div>
+            <button id="searchBtn" class="search-btn">Search <span>→</span></button>
+          </div>
+
+          <div class="directory-meta"><span id="resultCount">Ready to search</span><span>Profiles are ordered by most recent</span></div>
+          <div id="searchResults" class="candidate-list"></div>
+        </section>
+
+        <!-- View -->
+        <section id="view" class="panel">
+          <div class="section-intro">
+            <div><span class="eyebrow">CANDIDATE PROFILE</span><h2>Candidate overview</h2><p>Review candidate information and the submitted resume in one workspace.</p></div>
+            <button id="backToSearch" class="secondary-btn">← Back to candidates</button>
+          </div>
+          <div id="viewContent" class="view-content">
+            <div class="empty-profile"><div class="empty-icon">▤</div><h3>No profile selected</h3><p>Open a candidate from Candidate Search to view their complete profile.</p><button class="secondary-btn" data-tab-target="watch">Browse candidates</button></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
