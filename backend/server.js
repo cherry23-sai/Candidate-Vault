@@ -21,73 +21,377 @@ const crypto =
   require('crypto');
 
 
-const { parseCandidateText } = require('./parser');
-const drive = require('./driveService');
+const {
+  parseCandidateText
+} = require('./parser');
 
-const app = express();
-const UPLOAD_TMP = path.join(__dirname, 'uploads_tmp');
-fs.mkdirSync(UPLOAD_TMP, { recursive: true });
-const upload = multer({ dest: UPLOAD_TMP });
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+const db =
+  require('./dbService');
 
-const oAuth2Client = drive.getOAuthClient();
 
-// ---- One-time Google sign-in ----
-app.get('/auth', (req, res) => {
-  res.redirect(drive.getAuthUrl(oAuth2Client));
-});
+const app =
+  express();
 
-app.get('/oauth2callback', async (req, res) => {
-  try {
-    await drive.saveToken(oAuth2Client, req.query.code);
-    res.send('Google Drive connected. You can close this tab and use the app.');
-  } catch (err) {
-    res.status(500).send('Auth failed: ' + err.message);
+
+// ============================================================
+// UPLOAD TEMP DIRECTORY
+// ============================================================
+
+const UPLOAD_TMP =
+  path.join(
+    __dirname,
+    'uploads_tmp'
+  );
+
+
+fs.mkdirSync(
+  UPLOAD_TMP,
+  {
+    recursive: true
   }
-});
+);
 
-// ---- Upload: pasted text + PDF -> parsed record saved to Drive ----
-app.post('/api/upload', upload.single('resume'), async (req, res) => {
-  try {
-    const fields = parseCandidateText(req.body.text || '');
 
-    if (!fields.name) {
-      return res.status(400).json({ error: 'Could not detect a Name field in the pasted text.' });
+// ============================================================
+// MULTER
+// ============================================================
+
+const upload =
+  multer({
+
+    dest:
+      UPLOAD_TMP,
+
+    limits: {
+      fileSize:
+        10 * 1024 * 1024
+    },
+
+    fileFilter:
+      (req, file, cb) => {
+
+        cb(
+          null,
+
+          file.mimetype ===
+            'application/pdf'
+        );
+
+      }
+
+  });
+
+
+// ============================================================
+// MIDDLEWARE
+// ============================================================
+
+app.use(
+  cors()
+);
+
+app.use(
+  express.json()
+);
+
+
+// Serve frontend.
+
+app.use(
+  express.static(
+    path.join(
+      __dirname,
+      '..',
+      'frontend'
+    )
+  )
+);
+
+
+// ============================================================
+// USERS
+// ============================================================
+
+const USERS = {
+
+  admin: {
+
+    username:
+      process.env.ADMIN_USERNAME ||
+      'admin',
+
+    password:
+      process.env.ADMIN_PASSWORD ||
+      'Admin@123',
+
+    role:
+      'admin'
+
+  },
+
+
+  employee: {
+
+    username:
+      process.env.EMPLOYEE_USERNAME ||
+      'employee',
+
+    password:
+      process.env.EMPLOYEE_PASSWORD ||
+      'Employee@123',
+
+    role:
+      'employee'
+
+  }
+
+};
+
+
+// ============================================================
+// ACTIVE LOGIN TOKENS
+// ============================================================
+
+const activeTokens =
+  new Map();
+
+
+// ============================================================
+// AUTHENTICATE USER
+// ============================================================
+
+function authenticateUser(
+  role,
+  username,
+  password
+) {
+
+  const user =
+    USERS[role];
+
+
+  return (
+
+    user &&
+
+    user.username === username &&
+
+    user.password === password
+
+  )
+
+    ? user
+
+    : null;
+
+}
+
+
+// ============================================================
+// CREATE LOGIN TOKEN
+// ============================================================
+
+function createToken(user) {
+
+  const token =
+    crypto.randomBytes(
+      32
+    ).toString('hex');
+
+
+  activeTokens.set(
+    token,
+    {
+
+      role:
+        user.role,
+
+      username:
+        user.username,
+
+      createdAt:
+        Date.now()
+
     }
-    if (!req.file) {
-      return res.status(400).json({ error: 'No PDF file was uploaded.' });
+  );
+
+
+  return token;
+
+}
+
+
+// ============================================================
+// AUTH MIDDLEWARE
+// ============================================================
+
+function requireAuth(
+  req,
+  res,
+  next
+) {
+
+  const header =
+    req.get(
+      'Authorization'
+    ) || '';
+
+
+  const token =
+    header.startsWith(
+      'Bearer '
+    )
+
+      ? header.slice(7)
+
+      : '';
+
+
+  const session =
+    activeTokens.get(
+      token
+    );
+
+
+  if (!session) {
+
+    return res
+      .status(401)
+      .json({
+
+        error:
+          'Please sign in to continue.'
+
+      });
+
+  }
+
+
+  req.user =
+    session;
+
+
+  req.token =
+    token;
+
+
+  next();
+
+}
+
+
+// ============================================================
+// ADMIN MIDDLEWARE
+// ============================================================
+
+function requireAdmin(
+  req,
+  res,
+  next
+) {
+
+  if (
+    req.user?.role !==
+    'admin'
+  ) {
+
+    return res
+      .status(403)
+      .json({
+
+        error:
+          'Administrator access is required for this action.'
+
+      });
+
+  }
+
+
+  next();
+
+}
+
+
+// ============================================================
+// LOGIN
+// ============================================================
+
+app.post(
+  '/api/login',
+  (req, res) => {
+
+    const role =
+      String(
+        req.body.role || ''
+      ).toLowerCase();
+
+
+    const username =
+      String(
+        req.body.username || ''
+      );
+
+
+    const password =
+      String(
+        req.body.password || ''
+      );
+
+
+    if (
+      ![
+        'admin',
+        'employee'
+      ].includes(role)
+    ) {
+
+      return res
+        .status(400)
+        .json({
+
+          error:
+            'Select a valid role.'
+
+        });
+
     }
 
-    const fileName = `${fields.name.replace(/\s+/g, '_')}_resume.pdf`;
-    const driveFile = await drive.uploadResume(oAuth2Client, {
-      filePath: req.file.path,
-      fileName,
-      fields
+    const user =
+      authenticateUser(
+        role,
+        username,
+        password
+      );
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({
+          error: 'Invalid username or password.'
+        });
+    }
+
+    const token =
+      createToken(user);
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        role: user.role,
+        username: user.username
+      }
     });
-
-    fs.unlink(req.file.path, () => {}); // clean up temp upload
-
-    res.json({ success: true, fileId: driveFile.id, fields });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 // ---- Watch: search across all fields (skills, location, company, ...) ----
 app.get('/api/search', async (req, res) => {
   try {
-    const q = (req.query.q || '').toLowerCase().trim();
-    const files = await drive.listResumes(oAuth2Client);
-
-    const results = files
-      .map(f => ({ fileId: f.id, ...f.properties }))
-      .filter(r => !q || Object.values(r).some(v => String(v).toLowerCase().includes(q)));
-
-    res.json({ results });
+    const q = (req.query.q || '').trim();
+    const results = await db.listResumes(q);
+    res.json({ results: results.map(r => ({ fileId: r.id, ...r.fields })) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -97,17 +401,38 @@ app.get('/api/search', async (req, res) => {
 // ---- View: full profile + embeddable resume link ----
 app.get('/api/profile/:fileId', async (req, res) => {
   try {
-    const file = await drive.getResume(oAuth2Client, req.params.fileId);
+    const record = await db.getResume(req.params.fileId);
     res.json({
-      fields: file.properties,
-      resumeViewLink: file.webViewLink,
-      resumeEmbedLink: `https://drive.google.com/file/d/${file.id}/preview`
+      fields: record.fields,
+      resumeViewLink: `/api/resume/${record.id}/file`,
+      resumeEmbedLink: `/api/resume/${record.id}/file`
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+// ---- Serve the actual PDF bytes from local disk ----
+app.get('/api/resume/:fileId/file', async (req, res) => {
+  try {
+    const record = await db.getResume(req.params.fileId);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${record.fileName}"`);
+    fs.createReadStream(record.filePath).pipe(res);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Candidate Vault running at http://localhost:${PORT}`));
+
+db.init()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Candidate Vault running at http://localhost:${PORT}`));
+  })
+  .catch(err => {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+  });
